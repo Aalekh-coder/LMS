@@ -7,6 +7,8 @@ import { useContext } from "react";
 import { AuthContext } from "./context/auth-context";
 import StudentHomePage from "./pages/student/home";
 import InstructorDashboardPage from "./pages/instructor";
+import NotFound from "./pages/Not-found";
+import AddNewCourse from "./pages/instructor/AddNewCourse";
 
 function App() {
   const { auth } = useContext(AuthContext);
@@ -34,6 +36,16 @@ function App() {
           />
         }
       />
+      <Route
+        path="/instructor/create-new-course"
+        element={
+          <RouteGuard
+            element={<AddNewCourse />}
+            authenticated={auth?.authenticate}
+            user={auth?.user}
+          />
+        }
+      />
 
       <Route
         path="/"
@@ -48,8 +60,7 @@ function App() {
         <Route path="" element={<StudentHomePage />} />
         <Route path="/home" element={<StudentHomePage />} />
       </Route>
-
-    
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
