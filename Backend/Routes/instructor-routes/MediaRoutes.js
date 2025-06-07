@@ -13,8 +13,9 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const result = await uploadMediaToCloudinary(req.file.path);
     res.status(200).json({
+      data:result,
+      message:"video upload successfully",
       success: true,
-      data: result,
     });
   } catch (error) {
       res.status(500).json({ success: false, message: "Error uploading file" });

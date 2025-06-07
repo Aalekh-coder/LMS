@@ -4,6 +4,7 @@ const cors = require("cors");
 const { PORT, CLIENT_URL } = require('./Config/env');
 const connectToDB = require("./Config/db");
 const AuthRoutes = require("./Routes/AuthRoutes")
+const mediaRoutes = require("./Routes/instructor-routes/MediaRoutes")
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use((error, req, res, next) => {
 // router 
 
 app.use("/auth", AuthRoutes);
+app.use("/media", mediaRoutes);
 
 
 app.listen(PORT, () => {

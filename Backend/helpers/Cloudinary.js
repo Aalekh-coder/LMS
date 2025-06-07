@@ -1,10 +1,12 @@
+
+
+const cloudinary = require("cloudinary").v2;
+
 const {
   CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET,
 } = require("../Config/env");
-
-const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
   cloud_name: CLOUDINARY_CLOUD_NAME,
@@ -17,6 +19,7 @@ const uploadMediaToCloudinary = async (filePath) => {
     const result = await cloudinary.uploader.upload(filePath, {
       resource_type: "auto",
     });
+    return result
   } catch (error) {
     console.log(error);
     throw new Error("Error uploading to cloudinary");
