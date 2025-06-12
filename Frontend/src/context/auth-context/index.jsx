@@ -1,5 +1,5 @@
-import Loader from "@/components/MyComponents/Loader";
-import { Skeleton } from "@/components/ui/skeleton";
+// import Loader from "@/components/MyComponents/Loader";
+// import { Skeleton } from "@/components/ui/skeleton";
 import { initialSignInFormData, initialSignUpFormData } from "@/config";
 import { checkAuth, loginService, registerService } from "@/services";
 

@@ -3,14 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import VideoPlayer from "@/components/video-player";
 import { InstructorContext } from "@/context/instructor-context";
 import { mediaUploadService } from "@/services";
 import { Label } from "@radix-ui/react-label";
 import React, { useContext } from "react";
 
 const CourseCurriculum = () => {
-  const { courseCurriculumFormData, setcourseCurriculumFormData, mediaUploadProgress, setMediaUploadProgress, mediaUploadProgressPercentage, setMediaUploadProgressPercentage, } =
-    useContext(InstructorContext);
+  const {
+    courseCurriculumFormData,
+    setcourseCurriculumFormData,
+    mediaUploadProgress,
+    setMediaUploadProgress,
+    mediaUploadProgressPercentage,
+    setMediaUploadProgressPercentage,
+  } = useContext(InstructorContext);
 
   function handleNewLecture() {
     setcourseCurriculumFormData([
@@ -34,36 +41,36 @@ const CourseCurriculum = () => {
     copyCourseCurriculumFormData[currentIndex] = {
       ...copyCourseCurriculumFormData[currentIndex],
       freePreview: currentValue,
-
     };
 
     setcourseCurriculumFormData(copyCourseCurriculumFormData);
-}
+  }
 
- async function handleSingleLectureUpload(event, currentIndex) {
+  async function handleSingleLectureUpload(event, currentIndex) {
     const selectedFile = event.target.files[0];
 
     if (selectedFile) {
       const videoFormData = new FormData();
-      videoFormData.append("file", selectedFile)
-      
-      try {
-        setMediaUploadProgress(true)
+      videoFormData.append("file", selectedFile);
 
-        const response = await mediaUploadService(videoFormData,setMediaUploadProgressPercentage);
+      try {
+        setMediaUploadProgress(true);
+
+        const response = await mediaUploadService(
+          videoFormData,
+          setMediaUploadProgressPercentage
+        );
         if (response?.success) {
           let copyCourseCurriculumFormData = [...courseCurriculumFormData];
           copyCourseCurriculumFormData[currentIndex] = {
-            ...copyCourseCurriculumFormData[currentIndex] = {
+            ...(copyCourseCurriculumFormData[currentIndex] = {
               ...copyCourseCurriculumFormData[currentIndex],
               videoUrl: response?.data?.url,
-              public_id:response?.data?.public_id
-            }
-          }
+              public_id: response?.data?.public_id,
+            }),
+          };
           setcourseCurriculumFormData(copyCourseCurriculumFormData);
           setMediaUploadProgress(false);
-
-
         }
       } catch (error) {
         console.log(error);
@@ -71,20 +78,38 @@ const CourseCurriculum = () => {
     }
   }
 
-  console.log(courseCurriculumFormData);
-  
+  async function handleReplaceVideo(currentIndex) {
+    let copyCourseCurruculum = [...courseCurriculumFormData].public_id;
+    const getCurrentVideoPubic
+}
+
+  const isCourseCurriculumFormDataVaild = () => {
+    return courseCurriculumFormData.every((item) => {
+      return (
+        item &&
+        typeof item === "object" &&
+        item.title.trim() !== "" &&
+        item.videoUrl.trim() !== ""
+      );
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Create Course Curriculum</CardTitle>
       </CardHeader>
       <CardContent>
-        <Button onClick={handleNewLecture}>Add Lecture</Button>
+        <Button onClick={handleNewLecture} disabled={!isCourseCurriculumFormDataVaild() || mediaUploadProgress}>Add Lecture</Button>
 
-        {
-          mediaUploadProgress ? <MediaProgressBar isMediaUploading={mediaUploadProgress} progress={mediaUploadProgressPercentage}/>
-            : null
-        }
+        <div className="p-4">
+          {mediaUploadProgress ? (
+            <MediaProgressBar
+              isMediaUploading={mediaUploadProgress}
+              progress={mediaUploadProgressPercentage}
+            />
+          ) : null}
+        </div>
         <div className="mt-4 space-y-4">
           {courseCurriculumFormData?.map((curriculumItem, index) => (
             <div className="border p-5 rounded-md" key={index}>
@@ -98,14 +123,37 @@ const CourseCurriculum = () => {
                   value={courseCurriculumFormData[index]?.title}
                 />
                 <div className="flex items-center space-x-2">
-                  <Switch id={`freePreview-${index + 1}`} onCheckedChange={(value) => handleFreePreviewChange(value, index)} checked={courseCurriculumFormData[index]?.freePreview} />
+                  <Switch
+                    id={`freePreview-${index + 1}`}
+                    onCheckedChange={(value) =>
+                      handleFreePreviewChange(value, index)
+                    }
+                    checked={courseCurriculumFormData[index]?.freePreview}
+                  />
                   <Label htmlFor={`freePreview-${index + 1}`}>
                     Free Preview
                   </Label>
                 </div>
               </div>
               <div className="mt-6">
-                <Input type="file" accept="video/*" className="mb-4" onChange={(e)=> handleSingleLectureUpload(e,index)}/>
+                {courseCurriculumFormData[index]?.videoUrl ? (
+                  <div className="flex gap-3 ">
+                    <VideoPlayer
+                      url={courseCurriculumFormData[index]?.videoUrl}
+                      width="450px"
+                      height="300px"
+                    />
+                    <Button onClick={()=> handleReplaceVideo(index)}>Replace Video</Button>
+                    <Button className="bg-rose-400">Delete Lecture</Button>
+                  </div>
+                ) : (
+                  <Input
+                    type="file"
+                    accept="video/*"
+                    className="mb-4"
+                    onChange={(e) => handleSingleLectureUpload(e, index)}
+                  />
+                )}
               </div>
             </div>
           ))}
