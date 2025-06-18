@@ -58,7 +58,7 @@ const AddNewCourse = () => {
         return false;
       }
 
-      if (item.freePreview) {
+      if (item?.freePreview) {
         hasFreePreview = true; 
       }
     }

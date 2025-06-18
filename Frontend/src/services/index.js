@@ -29,6 +29,7 @@ export async function mediaUploadService(formData, onProgressCallback) {
   return data;
 }
 
+
 export async function mediaDeleteService(id) {
   const { data } = await axiosInstance.delete(`/media/delete/${id}`);
   return data;
@@ -55,4 +56,17 @@ export async function updateCourseByIdService(id,formData) {
     formData
   );
   return data
+}
+
+
+export async function mediaBulkUploadService(formData, onProgressCallback) {
+  const { data } = await axiosInstance.post("/media/bulk-upload", formData, {
+    onUploadProgress: (progressEvent) => {
+      const percentCompleted = Math.round(
+        (progressEvent.loaded * 100) / progressEvent.total
+      );
+      onProgressCallback(percentCompleted);
+    },
+  });
+  return data;
 }
