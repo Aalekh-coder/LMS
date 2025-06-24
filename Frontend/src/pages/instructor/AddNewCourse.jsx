@@ -49,11 +49,12 @@ const AddNewCourse = () => {
 
     let hasFreePreview = false;
 
+    console.log(courseCurriculumFormData);
     for (const item of courseCurriculumFormData) {
       if (
-        isEmpty(item.title) ||
-        isEmpty(item.videoUrl) ||
-        isEmpty(item.public_id)
+        isEmpty(item?.title) ||
+        isEmpty(item?.videoUrl) ||
+        isEmpty(item?.public_id)
       ) {
         return false;
       }

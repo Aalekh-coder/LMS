@@ -6,6 +6,9 @@ const connectToDB = require("./Config/db");
 const AuthRoutes = require("./Routes/AuthRoutes");
 const mediaRoutes = require("./Routes/instructor-routes/MediaRoutes");
 const instructorCourseRoute = require("./Routes/instructor-routes/course-routes");
+const studentViewCourseRoute = require("./Routes/student-routes/CourseRoutes");
+const studentViewOrderRoute = require("./Routes/student-routes/Order-routes");
+
 
 const app = express();
 
@@ -31,7 +34,8 @@ app.use((error, req, res, next) => {
 app.use("/auth", AuthRoutes);
 app.use("/media", mediaRoutes);
 app.use("/instructor/course", instructorCourseRoute);
-
+app.use("/student/course", studentViewCourseRoute);
+app.use("/student/order", studentViewOrderRoute);
 
 app.listen(PORT, () => {
   connectToDB();

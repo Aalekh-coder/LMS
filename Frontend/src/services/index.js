@@ -70,3 +70,27 @@ export async function mediaBulkUploadService(formData, onProgressCallback) {
   });
   return data;
 }
+
+
+export async function fetchStudentViewCourseListService(query) {
+  const { data } = await axiosInstance.get(`/student/course/get?${query}`);
+  return data;
+}
+
+export async function fetchStudentViewCourseDetailService(courseId) {
+  const { data } = await axiosInstance.get(
+    `/student/course/get/details/${courseId}`
+  );
+  return data;
+}
+
+// payment
+
+export async function createPaymentServices(formData) {
+  const { data } = await axiosInstance.post(`/student/order/create`, formData);
+  return data;
+}
+export async function captureAndFinalizePaymentServices(formData) {
+  const { data } = await axiosInstance.post(`/student/order/capture`, formData);
+  return data;
+}

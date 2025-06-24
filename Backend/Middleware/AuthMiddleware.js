@@ -16,7 +16,6 @@ const authenticate = (req, res, next) => {
   }
 
   const token = authHeader.split(" ")[1];
-  console.log(token,"token");
   const payload = verifyToken(token, JWT_SECRET);
 
   req.user = payload;
