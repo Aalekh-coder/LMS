@@ -34,8 +34,8 @@ const navigate = useNavigate()
       </div>
       <div className="flex items-center space-x-4">
         <div className="flex gap-4 items-center">
-          <div className="flex items-center gap-3">
-            <span className="font-extrabold md:text-xl text-[14px]">My Course</span>
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/student-courses")}>
+            <span className="font-extrabold md:text-xl text-[14px]" >My Course</span>
             <TvMinimalPlay className="w-8 h-8 cursor-pointer" />
           </div>
           <Button onClick={handleLogout}>SignOut</Button>

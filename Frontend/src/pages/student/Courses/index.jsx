@@ -10,19 +10,21 @@ import {
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { filterOptions, sortOptions } from "@/config";
+import { AuthContext } from "@/context/auth-context";
 import { StudentContext } from "@/context/student-context";
-import { fetchStudentViewCourseListService } from "@/services";
+import { checkCoursePurchaseInfoService, fetchStudentViewCourseListService } from "@/services";
 import { ArrowUpDownIcon } from "lucide-react";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 function createSearchParamsHelper(filterParams) {
+  
   const queryParams = [];
-
+  
   for (const [key, value] of Object.entries(filterParams)) {
     if (Array.isArray(value) && value.length > 0) {
       const paramValue = value.join(",");
-
+      
       queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);
     }
   }
@@ -40,6 +42,7 @@ const StudentViewCoursePage = () => {
   const [filters, setFilters] = useState({});
   const [searchParams, setSearchParams] = useSearchParams();
   const [sort, setSort] = useState("price-lowtohigh");
+  const { auth } = useContext(AuthContext)
 
   function handleFilterOnChange(getSectionId, getCurrentOption) {
     let copyFilters = { ...filters };
@@ -79,6 +82,20 @@ const StudentViewCoursePage = () => {
     if (response?.success) {
       setStudentViewCourseList(response?.data);
       setLoadingState(false);
+    }
+  }
+
+  async function handleCourseNavigate(getCurrentCourseId) {
+    const response = await checkCoursePurchaseInfoService(getCurrentCourseId, auth?.user?._id);
+
+    if (response?.success) {
+if(response?.data){
+  navigate(`/course-progress/${getCurrentCourseId}`)
+ 
+} else{
+  navigate(`/course/details/${getCurrentCourseId}`)
+
+}     
     }
   }
 
@@ -178,7 +195,7 @@ const StudentViewCoursePage = () => {
             {studentViewCourseList && studentViewCourseList.length > 0 ? (
               studentViewCourseList.map((courseItem) => (
                 <Card
-                  onClick={() => navigate(`/course/details/${courseItem?._id}`)}
+                  onClick={() => handleCourseNavigate(courseItem?._id)}
                   className="cursor-pointer shadow-lg"
                   key={courseItem?._id}
                 >

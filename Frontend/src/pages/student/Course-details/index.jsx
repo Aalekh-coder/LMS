@@ -18,15 +18,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import VideoPlayer from "@/components/video-player";
 import { StudentContext } from "@/context/student-context";
 import {
-  createPaymentServices,
-  fetchIntructorCourseDetailService,
+  checkCoursePurchaseInfoService,
+  createPaymentService,
+  fetchStudentViewCourseDetailService,
 } from "@/services";
-
 import React, { useContext, useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import {useLocation, useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "@/context/auth-context";
 
 const StudentViewCourseDetailsPage = () => {
+  const navigate = useNavigate()
   const {
     studentViewCourseDetails,
     setStudentViewCourseDetails,
@@ -47,9 +48,20 @@ const StudentViewCourseDetailsPage = () => {
   const location = useLocation();
 
   async function fetchIntructorCourseDetail() {
-    const response = await fetchIntructorCourseDetailService(
+    const checkCoursePurchaseInfoReponse = await checkCoursePurchaseInfoService(currentCourseDetailsId, auth?.user?._id)
+    
+    console.log(checkCoursePurchaseInfoReponse);
+
+    if (checkCoursePurchaseInfoReponse?.success && checkCoursePurchaseInfoReponse?.data) {
+      navigate(`/course-progress/${currentCourseDetailsId}`)
+      return
+    }
+
+    const response = await fetchStudentViewCourseDetailService(
       currentCourseDetailsId
     );
+
+
     if (response?.success) {
       setStudentViewCourseDetails(response?.data);
       setLoadingState(false);
@@ -84,23 +96,21 @@ const StudentViewCourseDetailsPage = () => {
       orderDate: new Date(),
       paymentId: "",
       payerId: "",
-      instructorId: studentViewCourseDetails?.instructorId,
-      instructorName: studentViewCourseDetails?.instructorName,
+      instructorId: studentViewCourseDetails?.instuctorId,
+      instructorName: studentViewCourseDetails?.instuctorName,
       courseImage: studentViewCourseDetails?.image,
+      courseTitle: studentViewCourseDetails?.title,
       courseId: studentViewCourseDetails?._id,
       coursePricing: studentViewCourseDetails?.pricing,
-      courseTitle: studentViewCourseDetails?.title,
     };
 
-    console.log(paymentPayload);
-
-    const response = await createPaymentServices(paymentPayload);
+    const response = await createPaymentService(paymentPayload);
     if (response?.success) {
       sessionStorage?.setItem(
         "currentOrderId",
         JSON.stringify(response?.data?.orderId)
       );
-      setApprovalUrl(response?.data?.approvalUrl);
+      setApprovalUrl(response?.data?.approveUrl);
     }
   }
 
@@ -126,6 +136,7 @@ const StudentViewCourseDetailsPage = () => {
 
   if (loadingState) return <Skeleton />;
 
+ 
   if (approvalUrl !== "") {
     window.location.href = approvalUrl;
   }
@@ -139,7 +150,7 @@ const StudentViewCourseDetailsPage = () => {
         <p className="text-xl mb-4">{studentViewCourseDetails?.subtitle}</p>
 
         <div className="flex items-center space-x-4 mt-2 text-sm">
-          <span>Created By {studentViewCourseDetails?.instructorName}</span>
+          <span>Created By {studentViewCourseDetails?.instuctorName}</span>
           <span>
             Created On {studentViewCourseDetails?.date?.split("T")[0]}
           </span>

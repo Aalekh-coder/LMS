@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { PORT, CLIENT_URL } = require("./Config/env");
@@ -8,6 +7,7 @@ const mediaRoutes = require("./Routes/instructor-routes/MediaRoutes");
 const instructorCourseRoute = require("./Routes/instructor-routes/course-routes");
 const studentViewCourseRoute = require("./Routes/student-routes/CourseRoutes");
 const studentViewOrderRoute = require("./Routes/student-routes/Order-routes");
+const studentCoursesRoutes = require("./Routes/student-routes/studentCoureseRoutes");
 
 
 const app = express();
@@ -36,6 +36,7 @@ app.use("/media", mediaRoutes);
 app.use("/instructor/course", instructorCourseRoute);
 app.use("/student/course", studentViewCourseRoute);
 app.use("/student/order", studentViewOrderRoute);
+app.use("/student/courses-bought", studentCoursesRoutes);
 
 app.listen(PORT, () => {
   connectToDB();

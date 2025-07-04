@@ -15,7 +15,6 @@ const RouteGuard = ({ authenticated, user, element }) => {
       location.pathname.includes("/auth"))
   ) {
     return <Navigate to="/home" />;
-    // return <Navigate to="/course/details/68568e9655e8a01ea25d1d05" />;
   }
 
   if (

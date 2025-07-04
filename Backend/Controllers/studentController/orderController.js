@@ -1,7 +1,7 @@
-const paypal = require("../../helpers/paypal");
 const Order = require("../../Models/Order");
-const StudentCourse = require("../../Models/StudentCourse");
+const paypal = require("../../helpers/paypal");
 const Course = require("../../Models/Course");
+const StudentCourses = require("../../Models/StudentCourse");
 const { CLIENT_URL } = require("../../Config/env");
 
 const createOrder = async (req, res) => {
@@ -19,9 +19,9 @@ const createOrder = async (req, res) => {
       instructorId,
       instructorName,
       courseImage,
+      courseTitle,
       courseId,
       coursePricing,
-      courseTitle,
     } = req.body;
 
     const create_payment_json = {
@@ -58,7 +58,7 @@ const createOrder = async (req, res) => {
     paypal.payment.create(create_payment_json, async (error, paymentInfo) => {
       if (error) {
         console.log(error);
-        return res.state(500).json({
+        return res.status(500).json({
           success: false,
           message: "Error while creating paypal payment!",
         });
@@ -76,27 +76,28 @@ const createOrder = async (req, res) => {
           instructorId,
           instructorName,
           courseImage,
+          courseTitle,
           courseId,
           coursePricing,
-          courseTitle,
         });
+
         await newlyCreatedCourseOrder.save();
 
         const approveUrl = paymentInfo.links.find(
-          (link) => link.rel === "approval_url"
+          (link) => link.rel == "approval_url"
         ).href;
 
         res.status(201).json({
           success: true,
           data: {
             approveUrl,
-            orderId: newlyCreatedCourseOrder?._id,
+            orderId: newlyCreatedCourseOrder._id,
           },
         });
       }
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.log(err);
     res.status(500).json({
       success: false,
       message: "Some error occured!",
@@ -104,79 +105,81 @@ const createOrder = async (req, res) => {
   }
 };
 
+
+
 const capturePaymentAndFinalizeOrder = async (req, res) => {
   try {
     const { paymentId, payerId, orderId } = req.body;
 
     let order = await Order.findById(orderId);
+
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "order can not be found",
+        message: "Order can not be found",
       });
     }
+
     order.paymentStatus = "paid";
     order.orderStatus = "confirmed";
     order.paymentId = paymentId;
-    order.paymentId = payerId;
+    order.payerId = payerId;
 
     await order.save();
 
-    // update out student course model
-
-    const studentCourse = await StudentCourse.findOne({
-      userId: order?.userId,
+    //update out student course model
+    const studentCourses = await StudentCourses.findOne({
+      userId: order.userId,
     });
 
-    if (studentCourse) {
-      studentCourse?.courses?.push({
+    if (studentCourses) {
+      studentCourses.courses.push({
         courseId: order.courseId,
-        title: order?.courseTitle,
-        instructorId: order?.instructorId,
-        instructorName: order?.instructorName,
-        dateOfPurchase: order?.orderDate,
-        courseImage: order?.courseImage,
+        title: order.courseTitle,
+        instructorId: order.instructorId,
+        instructorName: order.instructorName,
+        dateOfPurchase: order.orderDate,
+        courseImage: order.courseImage,
       });
 
-      await studentCourse.save();
+      await studentCourses.save();
     } else {
-      const newStudentCourses = new StudentCourse({
-        userId: order?.userId,
+      const newStudentCourses = new StudentCourses({
+        userId: order.userId,
         courses: [
           {
             courseId: order.courseId,
-            title: order?.courseTitle,
-            instructorId: order?.instructorId,
-            instructorName: order?.instructorName,
-            dateOfPurchase: order?.orderDate,
-            courseImage: order?.courseImage,
+            title: order.courseTitle,
+            instructorId: order.instructorId,
+            instructorName: order.instructorName,
+            dateOfPurchase: order.orderDate,
+            courseImage: order.courseImage,
           },
         ],
       });
 
-      await new newStudentCourses.save();
+      await newStudentCourses.save();
     }
 
-    // update the course schame student
-
-    await Course.findByIdAndUpate(order?.courseId, {
+    //update the course schema students
+    await Course.findByIdAndUpdate(order.courseId, {
       $addToSet: {
         students: {
-          studentId: order?.userId,
-          studentName: order?.userName,
-          studentEmail: order?.userEmail,
-          paidAmount: order?.coursePricing,
+          studentId: order.userId,
+          studentName: order.userName,
+          studentEmail: order.userEmail,
+          paidAmount: order.coursePricing,
         },
       },
     });
 
     res.status(200).json({
       success: true,
-      message:"Order Confirm",
-      data:order
-    })
-  } catch (error) {
-    console.log(error);
+      message: "Order confirmed",
+      data: order,
+    });
+  } catch (err) {
+    console.log(err);
     res.status(500).json({
       success: false,
       message: "Some error occured!",
