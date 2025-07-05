@@ -26,7 +26,7 @@ const navigate = useNavigate()
           <Button
             className="text-[14px] md:text-[16px] font-medium"
             variant="ghost"
-            onClick={() => navigate("/courses")}
+            onClick={() => navigate("/courses") ? null : navigate("/courses")}
           >
             Explore Course
           </Button>

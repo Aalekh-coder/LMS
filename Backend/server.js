@@ -8,7 +8,7 @@ const instructorCourseRoute = require("./Routes/instructor-routes/course-routes"
 const studentViewCourseRoute = require("./Routes/student-routes/CourseRoutes");
 const studentViewOrderRoute = require("./Routes/student-routes/Order-routes");
 const studentCoursesRoutes = require("./Routes/student-routes/studentCoureseRoutes");
-
+const studentCoursesProgressRoutes = require("./Routes/student-routes/CourseProgressRoutes");
 
 const app = express();
 
@@ -37,6 +37,7 @@ app.use("/instructor/course", instructorCourseRoute);
 app.use("/student/course", studentViewCourseRoute);
 app.use("/student/order", studentViewOrderRoute);
 app.use("/student/courses-bought", studentCoursesRoutes);
+app.use("/student/course-progress", studentCoursesProgressRoutes);
 
 app.listen(PORT, () => {
   connectToDB();
