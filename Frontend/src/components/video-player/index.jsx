@@ -13,7 +13,13 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 
-const VideoPlayer = ({ width = "100%", height = "100%", url }) => {
+const VideoPlayer = ({
+  width = "100%",
+  height = "100%",
+  url,
+  onProgressUpdate,
+  progressData,
+}) => {
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [muted, setMuted] = useState(false);
@@ -65,33 +71,32 @@ const VideoPlayer = ({ width = "100%", height = "100%", url }) => {
   const handleFullScreen = useCallback(() => {
     if (!isFullScreen) {
       if (playerContainerRef?.current?.requestFullscreen) {
-        playerContainerRef?.current?.requestFullscreen()
+        playerContainerRef?.current?.requestFullscreen();
       }
     } else {
       if (document?.exitFullscreen) {
-        document?.exitFullscreen()
+        document?.exitFullscreen();
       }
     }
-  },[isFullScreen]);
-
+  }, [isFullScreen]);
 
   function handleMouseMove() {
     setShowControls(true);
     clearTimeout(controlsTimeoutRef.current);
-    controlsTimeoutRef.current = setTimeout(()=> setShowControls(false),3000)
+    controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
   }
 
   useEffect(() => {
     const handleFullScreenChange = () => {
-      setIsFullScreen(document.fullscreenElement)
-    }
+      setIsFullScreen(document.fullscreenElement);
+    };
 
-    document.addEventListener("fullscreenchange", handleFullScreenChange)
+    document.addEventListener("fullscreenchange", handleFullScreenChange);
 
     return () => {
-      document.removeEventListener("fullscreenchange",handleFullScreenChange)
-    }
-  }, [])
+      document.removeEventListener("fullscreenchange", handleFullScreenChange);
+    };
+  }, []);
 
   function formatTimeSetting(second) {
     const date = new Date(second * 1000);
@@ -105,6 +110,15 @@ const VideoPlayer = ({ width = "100%", height = "100%", url }) => {
     return `${mm}:${ss}`;
   }
 
+  useEffect(() => {
+    if (played === 1) {
+      onProgressUpdate({
+        ...progressData,
+        progressValue: played,
+      });
+    }
+  }, [played]);
+
   return (
     <div
       className={`relative bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-55 rounded-lg overflow-hidden shadow-2xl transition-all duration-300 ease-in-out ${
@@ -113,7 +127,7 @@ const VideoPlayer = ({ width = "100%", height = "100%", url }) => {
       ref={playerContainerRef}
       style={{ width, height }}
       onMouseMove={handleMouseMove}
-      onMouseLeave={()=>setShowControls(false)}
+      onMouseLeave={() => setShowControls(false)}
     >
       <ReactPlayer
         width={"100%"}
@@ -179,13 +193,23 @@ const VideoPlayer = ({ width = "100%", height = "100%", url }) => {
             </div>
             <div className="flex items-center space-x-2">
               <div className="text-white">
-                {
-                  formatTimeSetting(played * (playerRef?.current?.getDuration() || 0)) 
-                }/ {formatTimeSetting(playerRef?.current?.getDuration() || 0)}
+                {formatTimeSetting(
+                  played * (playerRef?.current?.getDuration() || 0)
+                )}
+                / {formatTimeSetting(playerRef?.current?.getDuration() || 0)}
               </div>
-              <Button variant="ghost" size="icon" className="text-white hover:text-white bg-transparent hover:bg-blue-500 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-55 rounded-full" onClick={handleFullScreen}>{
-                isFullScreen ? <Minimize className="h-6 w-6" /> : <Maximize className="h-6 w-6" />
-              }</Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:text-white bg-transparent hover:bg-blue-500 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-55 rounded-full"
+                onClick={handleFullScreen}
+              >
+                {isFullScreen ? (
+                  <Minimize className="h-6 w-6" />
+                ) : (
+                  <Maximize className="h-6 w-6" />
+                )}
+              </Button>
             </div>
           </div>
         </div>
