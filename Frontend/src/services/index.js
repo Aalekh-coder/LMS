@@ -129,7 +129,7 @@ export async function markCurrentLectureAsViewedervice(
   courseId,
   lectureId
 ) {
-  const { data } = await axiosInstance.get(
+  const { data } = await axiosInstance.post(
     `/student/course-progress/mark-lecture-viewed`,
     { userId, courseId, lectureId }
   );

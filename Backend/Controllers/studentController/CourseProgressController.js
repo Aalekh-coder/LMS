@@ -7,7 +7,7 @@ const markCurrentLectureAsViewed = async (req, res) => {
   try {
     const { userId, courseId, lectureId } = req.body;
 
-    let progress = await CourseProgress.find({ userId, courseId });
+    let progress = await CourseProgress.findOne({ userId, courseId });
 
     if (!progress) {
       progress = new CourseProgress({
@@ -31,7 +31,7 @@ const markCurrentLectureAsViewed = async (req, res) => {
         lectureProgress.viewed = true;
         lectureProgress.dateViewed = new Date();
       } else {
-        process?.lectureProgress?.push({
+        process?.lecturesProgress?.push({
           lectureId,
           viewed: true,
           dateViewed: new Date(),
@@ -52,8 +52,8 @@ const markCurrentLectureAsViewed = async (req, res) => {
     // check all the leacture are viewed ot not
 
     const allLectureViewed =
-      process?.lectureProgress?.length === course?.curriculum?.length &&
-      progress?.lectureProgress?.every((item) => item?.viewed);
+      process?.lecturesProgress?.length === course?.curriculum?.length &&
+      progress?.lecturesProgress?.every((item) => item?.viewed);
 
     if (allLectureViewed) {
       progress.completed = true;

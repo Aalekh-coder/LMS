@@ -9,7 +9,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { AuthContext } from "@/context/auth-context";
 import { StudentContext } from "@/context/student-context";
-import { getCurrentCourseProgressService } from "@/services";
+import {
+  getCurrentCourseProgressService,
+  markCurrentLectureAsViewedervice,
+} from "@/services";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -55,6 +58,7 @@ const StudentViewCourseProgress = () => {
           setCurrentLecture(response?.data?.courseDetails?.curriculum[0]);
         } else {
           // later
+          console.log("logging here");
         }
       }
     }
@@ -64,10 +68,32 @@ const StudentViewCourseProgress = () => {
     if (showConfetti) setTimeout(() => setShowConfetti(false), 5000);
   }, [showConfetti]);
 
+  async function updateCourseProgress() {
+    if (currentLecture) {
+      const response = await markCurrentLectureAsViewedervice(
+        auth?.user?._id,
+        studentCurrentCourseProgress?.courseDetails?._id,
+        currentLecture?._id
+      );
+
+      console.log(response,'response');
+
+      if (response?.success) {
+        console.log('jee baat');
+        fetchCurrentCourseProgress();
+      }
+    }
+  }
+
   useEffect(() => {
     fetchCurrentCourseProgress();
   }, []);
 
+  useEffect(() => {
+    if (currentLecture?.progressValue === 1) updateCourseProgress();
+  }, [currentLecture]);
+
+  
 
   return (
     <div className="flex flex-col h-screen bg-[#1c1d1f] text-white">
@@ -88,7 +114,7 @@ const StudentViewCourseProgress = () => {
             {studentCurrentCourseProgress?.courseDetails?.title}
           </h1>
         </div>
-       
+
         <Button onClick={() => setIsSideBarOpen(!isSideBarOpen)}>
           <span
             className={`transition-transform duration-500 ease-in-out inline-block ${
@@ -145,7 +171,7 @@ const StudentViewCourseProgress = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="content" >
+            <TabsContent value="content">
               <ScrollArea className="h-full">
                 <div className="p-4 space-y-4">
                   {studentCurrentCourseProgress?.courseDetails?.curriculum?.map(
@@ -165,7 +191,9 @@ const StudentViewCourseProgress = () => {
               <ScrollArea className="h-full">
                 <div className="p-4">
                   <h2 className="text-xl font-bold mb-4">About this course</h2>
-                  <p className="text-gray-400">{studentCurrentCourseProgress?.courseDetails?.description}</p>
+                  <p className="text-gray-400">
+                    {studentCurrentCourseProgress?.courseDetails?.description}
+                  </p>
                 </div>
               </ScrollArea>
             </TabsContent>
