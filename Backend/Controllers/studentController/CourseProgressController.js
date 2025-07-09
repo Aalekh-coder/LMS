@@ -1,5 +1,5 @@
+const CourseProgress = require("../../Models/CourseProgress");
 const Course = require("../../Models/Course");
-const CourseProgress = require("../../Models/Course");
 const StudentCourses = require("../../Models/StudentCourse");
 
 // marked current lecture as views
@@ -52,7 +52,7 @@ const markCurrentLectureAsViewed = async (req, res) => {
     // check all the leacture are viewed ot not
 
     const allLectureViewed =
-      process?.lecturesProgress?.length === course?.curriculum?.length &&
+      progress?.lecturesProgress?.length === course?.curriculum?.length &&
       progress?.lecturesProgress?.every((item) => item?.viewed);
 
     if (allLectureViewed) {

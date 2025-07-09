@@ -137,7 +137,7 @@ export async function markCurrentLectureAsViewedervice(
 }
 
 export async function resetCurrentCourseProgressService(userId, courseId) {
-  const { data } = await axiosInstance.get(
+  const { data } = await axiosInstance.post(
     `/student/course-progress/reset-progress`,
     { userId, courseId }
   );
